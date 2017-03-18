@@ -1,14 +1,17 @@
 """Module to control the Dream Cheeky Original USB Launcher
 
 Example:
-    This is a very simple call to move the turret down::
+    This is a very simple call to move the turret up and down::
 
-        import usbLauncher.dreamcheeky
+        import launcher.dreamcheeky
 
         def main():
-            laucher = usbLauncher.dreamcheeky.Launcher()
-            laucher.setup_launcher()
-            laucher.move_down(1000)
+    
+            with launcher.dreamcheeky.Launcher() as laucher:
+                print(laucher.info())
+
+                laucher.move_up(500)
+                laucher.move_down(500)
 
         if __name__ == '__main__':
             main()
@@ -35,8 +38,13 @@ class Launcher():
         """Function to setup the device. Opens the device with
         the magic numbers: 0x0a81, 0x0701
         """
-        self._DEVICE = hid.device()
-        self._DEVICE.open(0x0a81, 0x0701)
+        self.open()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exit_type, exit_value, exit_traceback):
+        self.close()
 
     def info(self):
         """Returns the device informations
@@ -46,10 +54,29 @@ class Launcher():
         launcher_info += "Serial No: %s\n" % self._DEVICE.get_serial_number_string()
         return launcher_info
 
+    def open(self):
+        """Opens the device to send commands
+        """
+        assert self._DEVICE is None
+
+        self._DEVICE = hid.device()
+        self._DEVICE.open(0x0a81, 0x0701)
+
+    def close(self):
+        """Closes the device
+        """
+        if self._DEVICE is not None:
+            self._DEVICE.close()
+        self._DEVICE = None
+
     def _send_cmd(self, cmd):
+        assert self._DEVICE is not None
+
         self._DEVICE.write([0x00, cmd])
 
     def _send_cmd_with_timer(self, cmd, duration_ms):
+        assert self._DEVICE is not None
+
         self._send_cmd(cmd)
         time.sleep(duration_ms / 1000.0)
         self._send_cmd(self._STOP)

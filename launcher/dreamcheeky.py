@@ -31,17 +31,20 @@ class Launcher():
 
     _DEVICE = None
 
-    def setup_launcher(self):
+    def __init__(self):
         """Function to setup the device. Opens the device with
         the magic numbers: 0x0a81, 0x0701
         """
-
         self._DEVICE = hid.device()
         self._DEVICE.open(0x0a81, 0x0701)
 
-        print("Manufacturer: %s" % self._DEVICE.get_manufacturer_string())
-        print("Product: %s" % self._DEVICE.get_product_string())
-        print("Serial No: %s" % self._DEVICE.get_serial_number_string())
+    def info(self):
+        """Returns the device informations
+        """
+        launcher_info = "Manufacturer: %s\n" % self._DEVICE.get_manufacturer_string()
+        launcher_info += "Product: %s\n" % self._DEVICE.get_product_string()
+        launcher_info += "Serial No: %s\n" % self._DEVICE.get_serial_number_string()
+        return launcher_info
 
     def _send_cmd(self, cmd):
         self._DEVICE.write([0x00, cmd])

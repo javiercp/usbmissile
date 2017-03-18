@@ -2,7 +2,9 @@ import launcher.dreamcheeky
 
 def main():
     laucher = launcher.dreamcheeky.Launcher()
-    laucher.setup_launcher()
+
+    print(laucher.info())
+
     laucher.move_up(500)
     laucher.move_down(500)
 
